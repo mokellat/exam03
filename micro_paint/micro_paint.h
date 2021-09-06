@@ -23,8 +23,4 @@ typedef struct shape
     float   height;
     char    background;
 }   t_shape;
-
-
-
-
 #endif
