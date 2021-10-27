@@ -53,7 +53,7 @@ char    **background_draw(FILE *file, t_canva canva_dim)
 	return (buffer);
 }
 
-void	shape_draw(char **buffer, t_shape shape_dim)
+void	shape_draw(char **buffer, t_shape shape_dim, t_canva canva)
 {
 	int	width;
 	int	height;
@@ -67,11 +67,12 @@ void	shape_draw(char **buffer, t_shape shape_dim)
 
 	if(shape_dim.type == 'R')
 	{
-		for(int i = y; i < y + height; i++)
+		for(int i = y; i <= y + height; i++)
 		{
-			for(int j = x; j < x + width; j++)
+			for(int j = x; j <= x + width; j++)
 			{
-				buffer[i][j] = shape_dim.background;
+				if(i < canva.height && j < canva.width && i >= 0 && j >= 0)
+					buffer[i][j] = shape_dim.background;
 			}
 		}
 	}
@@ -81,10 +82,13 @@ void	shape_draw(char **buffer, t_shape shape_dim)
 		{
 			for(int j = x; j < x + width; j++)
 			{
-				if((j == x || j == x + width - 1))
-					buffer[i][j] = shape_dim.background;
-				if(i == y || i == y + width - 1)
-					buffer[i][j] = shape_dim.background;
+				if(i < canva.height  && j < canva.width && i >= 0 && j >= 0)
+				{
+					if ((j == x || j == x + width - 1))
+						buffer[i][j] = shape_dim.background;
+					if (i == y || i == y + width - 1)
+						buffer[i][j] = shape_dim.background;
+				}
 			}
 		}
 	}
@@ -93,23 +97,15 @@ void	shape_draw(char **buffer, t_shape shape_dim)
 int	final_draw_check(t_shape *shape_dim, FILE *file, char **buffer, t_canva canva_dim)
 {
 	int ret;
+	
 	while((ret = fscanf(file, "%c %f %f %f %f %c\n", &shape_dim->type, &shape_dim->x, &shape_dim->y, &shape_dim->width, 
 	&shape_dim->height, &shape_dim->background)) == 6)
 	{
 		if(shape_dim->width < 0.0 && shape_dim->height < 0.0)
 			return (0);
-		if(shape_dim->x > shape_dim->width && shape_dim->y > shape_dim->height)
-			return (0);
 		if(ret == -1)
 			return (0);
-		shape_draw(buffer, *shape_dim);
-		for(int i = 0; i < canva_dim.height; i++)
-		{
-			for(int j = 0; j < canva_dim.width; j++)
-				printf("%c", buffer[i][j]);
-			printf("\n");
-		}
-		printf("\nstop Wtf\n");
+		shape_draw(buffer, *shape_dim, canva_dim);
 	}
 	return (1);
 }
@@ -142,6 +138,12 @@ int main(int argc, char **argv)
 	{
 		write(1, "Error: Operation file corrupted\n", 32);
 		return (1);
+	}
+	for(int i = 0; i < canva_dim.height; i++)
+	{
+		for(int j = 0; j < canva_dim.width; j++)
+			printf("%c", buffer[i][j]);
+		printf("\n");
 	}
 	// printf("%c \n", shape_dim.type);
 	// printf("%f \n", shape_dim.x);
