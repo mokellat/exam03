@@ -78,15 +78,15 @@ void	shape_draw(char **buffer, t_shape shape_dim, t_canva canva)
 	}
 	if(shape_dim.type == 'r')
 	{
-		for(int i = y; i < y + height; i++)
+		for(int i = y; i <= y + height; i++)
 		{
-			for(int j = x; j < x + width; j++)
+			for(int j = x; j <= x + width; j++)
 			{
-				if(i < canva.height  && j < canva.width && i >= 0 && j >= 0)
+				if(i < canva.height && j < canva.width  && i >= 0 && j >= 0)
 				{
-					if ((j == x || j == x + width - 1))
+					if ((j == x || j == x + width))
 						buffer[i][j] = shape_dim.background;
-					if (i == y || i == y + width - 1)
+					if (i == y || i == y + height)
 						buffer[i][j] = shape_dim.background;
 				}
 			}
@@ -145,20 +145,5 @@ int main(int argc, char **argv)
 			printf("%c", buffer[i][j]);
 		printf("\n");
 	}
-	// printf("%c \n", shape_dim.type);
-	// printf("%f \n", shape_dim.x);
-	// printf("%f \n", shape_dim.y);
-	// printf("%f \n", shape_dim.width);
-	// printf("%f \n", shape_dim.height);
-	// printf("%c \n", shape_dim.background);
-	// printf("|------------------------------------------|\n");
-	// for(int i = 0; i < canva_dim.height; i++)
-	// {
-	// 	for(int j = 0; j < canva_dim.width; j++)
-	// 		printf("%c", buffer[i][j]);
-	// 	printf("\n");
-	// }
-	// else if(shape_dim.width < 0.0 && shape_dim.height < 0.0)
-	//     return (0);
 	return (0);
 }
