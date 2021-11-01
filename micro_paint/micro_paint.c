@@ -3,7 +3,6 @@
 int canva_dime_check(FILE *file, t_canva *canva_dim)
 {
 	int ret;
-	char c;
 
 	ret = fscanf(file, "%d %d %c\n", &canva_dim->width, &canva_dim->height, &canva_dim->background);
 	if(ret != 3)
@@ -16,28 +15,12 @@ int canva_dime_check(FILE *file, t_canva *canva_dim)
 	return (1);
 }
 
-int		shape_dim_check(t_shape *shape_dim, FILE *file)
-{
-	int ret = fscanf(file, "%c %f %f %f %f %c", &shape_dim->type, &shape_dim->x, &shape_dim->y, &shape_dim->width, 
-	&shape_dim->height, &shape_dim->background);
-	if(shape_dim->width < 0.0 && shape_dim->height < 0.0)
-	    return (0);
-	if(shape_dim->x > shape_dim->width && shape_dim->y > shape_dim->height)
-		return (0);
-	if(ret != 6)
-		return (0);
-	if(ret == -1)
-		return (0);
-	return (1);
-}
-
-char    **background_draw(FILE *file, t_canva canva_dim)
+char    **background_draw(t_canva canva_dim)
 {
 	int i = 0;
 	int j = 0;
 	int k;
 	char **buffer;
-	int check;
 
 	buffer = malloc(sizeof(*buffer) * canva_dim.height + 1);
 	for (k = 0; k < canva_dim.height; k++)
@@ -103,10 +86,12 @@ int	final_draw_check(t_shape *shape_dim, FILE *file, char **buffer, t_canva canv
 	{
 		if(shape_dim->width < 0.0 && shape_dim->height < 0.0)
 			return (0);
-		if(ret == -1)
+		if(shape_dim->type != 'R' || shape_dim->type != 'r')
 			return (0);
 		shape_draw(buffer, *shape_dim, canva_dim);
 	}
+	if(ret == -1)
+		return (0);
 	return (1);
 }
 
@@ -116,24 +101,23 @@ int main(int argc, char **argv)
 	t_canva canva_dim;
 	t_shape shape_dim;
 	char    **buffer;
-	char	**shape;
 
 	if(argc != 2)
 	{
 		write(1, "Error: argument\n", 16);
 		return (1);
 	}
-	else if(!(file = fopen(argv[1], "r")))
+	if(!(file = fopen(argv[1], "r")))
 	{
 		write(1, "Error: Operation file corrupted\n", 32);
 		return (1);
 	}
-	else if(!canva_dime_check(file, &canva_dim))
+	if(!canva_dime_check(file, &canva_dim))
 	{
 		write(1, "Error: Operation file corrupted\n", 32);
 		return (1);
 	}
-	buffer = background_draw(file, canva_dim);
+	buffer = background_draw(canva_dim);
 	if(!final_draw_check(&shape_dim, file, buffer, canva_dim))
 	{
 		write(1, "Error: Operation file corrupted\n", 32);
