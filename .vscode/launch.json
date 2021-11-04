@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Debug",
             "program": "${workspaceFolder}/micro_paint/a.out",
-            "args": ["${workspaceFolder}/micro_paint/test"],
+            "args": ["${workspaceFolder}/micro_paint/tests/2"],
             "cwd": "${workspaceFolder}"
         }
     ]
