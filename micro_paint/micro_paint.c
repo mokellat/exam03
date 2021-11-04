@@ -7,8 +7,8 @@ int canva_dime_check(FILE *file, t_canva *canva_dim)
 	ret = fscanf(file, "%d %d %c\n", &canva_dim->width, &canva_dim->height, &canva_dim->background);
 	if(ret != 3)
 		return(0);
-	if(canva_dim->width < 0 && canva_dim->width > 300 
-	&& canva_dim->height < 0 && canva_dim->height > 300)
+	if(canva_dim->width < 0 || canva_dim->width > 300 
+	|| canva_dim->height < 0 || canva_dim->height > 300)
 		return (0);
 	if(ret == -1)
 		return (0);
@@ -38,41 +38,45 @@ char    **background_draw(t_canva canva_dim)
 
 void	shape_draw(char **buffer, t_shape shape_dim, t_canva canva)
 {
-	int	width;
-	int	height;
-	int	x;
-	int	y;
-
-	width = shape_dim.width;
-	height = shape_dim.height;
-	x = shape_dim.x;
-	y = shape_dim.y;
+	int y = 0;
+	int x;
 
 	if(shape_dim.type == 'R')
 	{
-		for(int i = y; i <= y + height; i++)
+		while (y < canva.height)
 		{
-			for(int j = x; j <= x + width; j++)
+			x = 0;
+			while (x < canva.width)
 			{
-				if(i < canva.height && j < canva.width && i >= 0 && j >= 0)
-					buffer[i][j] = shape_dim.background;
+				if (x >= shape_dim.x && x <= shape_dim.x + shape_dim.width
+					&& y >= shape_dim.y && y <= shape_dim.y + shape_dim.height)
+				{
+					buffer[y][x] = shape_dim.background;
+				} 
+				x++;
 			}
+			y++;
 		}
 	}
 	if(shape_dim.type == 'r')
 	{
-		for(int i = y; i <= y + height; i++)
+		while (y < canva.height)
 		{
-			for(int j = x; j <= x + width; j++)
+			x = 0;
+			while (x < canva.width)
 			{
-				if(i < canva.height && j < canva.width  && i >= 0 && j >= 0)
+				if (x >= shape_dim.x && x <= shape_dim.x + shape_dim.width
+					&& y >= shape_dim.y && y <= shape_dim.y + shape_dim.height)
 				{
-					if ((j == x || j == x + width))
-						buffer[i][j] = shape_dim.background;
-					if (i == y || i == y + height)
-						buffer[i][j] = shape_dim.background;
+					if (sqrtf(powf(x - shape_dim.x, 2.0)) < 1 || sqrtf(powf(shape_dim.x + shape_dim.width - x, 2.0)) < 1
+						|| sqrtf(powf(y - shape_dim.y, 2.0)) < 1 || sqrtf(powf(shape_dim.y + shape_dim.height - y, 2.0)) < 1)
+					{
+						buffer[y][x] = shape_dim.background;
+					} 
 				}
+				x++;
 			}
+			y++;
 		}
 	}
 }
@@ -84,13 +88,13 @@ int	final_draw_check(t_shape *shape_dim, FILE *file, char **buffer, t_canva canv
 	while((ret = fscanf(file, "%c %f %f %f %f %c\n", &shape_dim->type, &shape_dim->x, &shape_dim->y, &shape_dim->width, 
 	&shape_dim->height, &shape_dim->background)) == 6)
 	{
-		if(shape_dim->width < 0.0 && shape_dim->height < 0.0)
+		if(shape_dim->width <= 0.0 || shape_dim->height <= 0.0)
 			return (0);
-		if(shape_dim->type != 'R' || shape_dim->type != 'r')
+		if(shape_dim->type != 'R' && shape_dim->type != 'r')
 			return (0);
 		shape_draw(buffer, *shape_dim, canva_dim);
 	}
-	if(ret == -1)
+	if(ret != -1)
 		return (0);
 	return (1);
 }
